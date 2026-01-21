@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "112012422178",
+    "project_id": "joblink-portal-1e800",
+    "storage_bucket": "joblink-portal-1e800.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112012422178:android:f084be03bbb54408556e7b",
+        "android_client_info": {
+          "package_name": "com.example.joblink_portal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "112012422178-9ltsbs5n7ufbqd3v0b1ndg65gmgnakos.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM8lgblF_7Pzw-c6iNQJ1yeudtqypIkqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "112012422178-9ltsbs5n7ufbqd3v0b1ndg65gmgnakos.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "112012422178-nk0bi4i252p47mg898idkbj40sbk56g7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.skhan.joblink"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112012422178:android:55303fdb1069dc7f556e7b",
+        "android_client_info": {
+          "package_name": "com.skhan.joblink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "112012422178-9ltsbs5n7ufbqd3v0b1ndg65gmgnakos.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM8lgblF_7Pzw-c6iNQJ1yeudtqypIkqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "112012422178-9ltsbs5n7ufbqd3v0b1ndg65gmgnakos.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "112012422178-nk0bi4i252p47mg898idkbj40sbk56g7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.skhan.joblink"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
