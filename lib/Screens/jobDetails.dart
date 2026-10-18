@@ -196,7 +196,7 @@ class JobDetailsScreen extends StatelessWidget {
             IconButton(
               tooltip: "Open WhatsApp",
               onPressed: () => launchWhatsApp(context, contactNumber),
-              icon: const Icon(Icons.whatsapp, color: Color(0xFF25D366), size: 24),
+              icon: const WhatsAppIcon(size: 24),
             ),
             IconButton(
               tooltip: "Copy Number",
