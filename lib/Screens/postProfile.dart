@@ -20,6 +20,18 @@ class _PostProfileScreenState extends State<PostProfileScreen> {
   final TextEditingController addLocationController = TextEditingController();
   final TextEditingController summaryController = TextEditingController();
 
+  @override
+  void dispose() {
+    nameController.dispose();
+    skillController.dispose();
+    expController.dispose();
+    contactController.dispose();
+    locationController.dispose();
+    addLocationController.dispose();
+    summaryController.dispose();
+    super.dispose();
+  }
+
   final List<String> allCities = [
     "Abbottabad", "Ahmedpur East", "Akhunabad", "Alipur", "Alipur Chatha", "Ali Khan Abad", "Arifwala", "Attock", "Awaran", "Badin",
     "Bahawalnagar", "Bahawalpur", "Bakhsh Town (Karachi East)", "Bakrani", "Baldia Town (Karachi West)", "Bannu", "Barikot", "Basirpur", "Bastorian", "Bela",
@@ -174,18 +186,23 @@ class _PostProfileScreenState extends State<PostProfileScreen> {
                           border: Border.all(
                               color: Colors.cyanAccent.withOpacity(0.3)),
                         ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredCities.length,
-                          itemBuilder: (context, index) => ListTile(
-                            title: Text(filteredCities[index],
-                                style: const TextStyle(color: Colors.white)),
-                            onTap: () {
-                              setState(() {
-                                locationController.text = filteredCities[index];
-                                filteredCities.clear();
-                              });
-                            },
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: filteredCities.length,
+                            itemBuilder: (context, index) => ListTile(
+                              title: Text(filteredCities[index],
+                                  style: const TextStyle(color: Colors.white)),
+                              onTap: () {
+                                setState(() {
+                                  locationController.text = filteredCities[index];
+                                  filteredCities.clear();
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),

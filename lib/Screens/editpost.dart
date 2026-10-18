@@ -39,6 +39,17 @@ class _EditPostScreenState extends State<EditPostScreen> {
     locationController = TextEditingController(text: widget.initialData['location'] ?? '');
   }
 
+  @override
+  void dispose() {
+    jobTitleController.dispose();
+    jobDescController.dispose();
+    companyNameController.dispose();
+    salaryController.dispose();
+    locationController.dispose();
+    contactController.dispose();
+    super.dispose();
+  }
+
   Future<void> updatePost() async {
     if (!_formKey.currentState!.validate()) return;
 

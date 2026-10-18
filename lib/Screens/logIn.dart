@@ -22,6 +22,13 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _googleLoading = false;
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   // Save user to Firestore (Common for Google + Email)
   Future<void> saveUserToFirestore(User user) async {
     await FirebaseFirestore.instance.collection('users').doc(user.uid).set({

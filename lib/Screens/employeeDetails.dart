@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:joblink_portal/utils/whatsapp_helper.dart';
 
 class ProfileDetailScreen extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -200,8 +201,14 @@ class ProfileDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          if (contactNumber != 'N/A')
+          if (contactNumber != 'N/A') ...[
             IconButton(
+              tooltip: "Open WhatsApp",
+              onPressed: () => launchWhatsApp(context, contactNumber),
+              icon: const Icon(Icons.whatsapp, color: Color(0xFF25D366), size: 24),
+            ),
+            IconButton(
+              tooltip: "Copy Number",
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: contactNumber));
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -215,6 +222,7 @@ class ProfileDetailScreen extends StatelessWidget {
               },
               icon: const Icon(Icons.copy_all_rounded, color: Colors.cyanAccent, size: 22),
             ),
+          ],
         ],
       ),
     );

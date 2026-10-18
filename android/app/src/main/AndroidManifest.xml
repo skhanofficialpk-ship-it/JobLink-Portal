@@ -9,7 +9,7 @@
 </queries>
 
     <application
-        android:label="joblink_portal"
+        android:label="Joblink Portal"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

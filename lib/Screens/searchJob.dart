@@ -15,6 +15,12 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
   String _sortBy = 'newest';
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -52,12 +58,28 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
                         return const Center(child: Text("No jobs found", style: TextStyle(color: Colors.white70)));
                       }
 
-                      // 1. Filtering Logic
+                      // 1. Expiry & Search Filtering Logic
                       List<QueryDocumentSnapshot> docs = snapshot.data!.docs.where((doc) {
                         final data = doc.data() as Map<String, dynamic>;
+
+                        // Expiry Check & Auto-Deletion from Firestore
+                        if (data.containsKey('expiresAt') && data['expiresAt'] != null) {
+                          DateTime expiryDate = (data['expiresAt'] as Timestamp).toDate();
+                          if (expiryDate.isBefore(DateTime.now())) {
+                            // Delete expired job from Firestore asynchronously
+                            doc.reference.delete().catchError((e) => debugPrint("Error deleting expired job: $e"));
+                            return false; // Immediately hide from UI
+                          }
+                        }
+
+                        // Search Match
                         final title = (data['jobTitle'] ?? "").toString().toLowerCase();
                         final loc = (data['location'] ?? "").toString().toLowerCase();
-                        return title.contains(searchQuery) || loc.contains(searchQuery);
+                        final company = (data['companyName'] ?? "").toString().toLowerCase();
+                        return searchQuery.isEmpty ||
+                            title.contains(searchQuery) ||
+                            loc.contains(searchQuery) ||
+                            company.contains(searchQuery);
                       }).toList();
 
                       // 2. SAFE Sorting Logic (Crash Prevention)
@@ -157,12 +179,21 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
       ),
       child: TextField(
         controller: searchController,
-        onChanged: (value) => setState(() => searchQuery = value.toLowerCase()),
+        onChanged: (value) => setState(() => searchQuery = value.toLowerCase().trim()),
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          hintText: "Search title, company...",
+          hintText: "Search title, company, location...",
           hintStyle: const TextStyle(color: Colors.white38),
           prefixIcon: const Icon(Icons.search, color: Colors.cyanAccent),
+          suffixIcon: searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.white54, size: 20),
+                  onPressed: () {
+                    searchController.clear();
+                    setState(() => searchQuery = "");
+                  },
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
@@ -220,7 +251,9 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
                 Text(jobData['location'] ?? "Remote", style: const TextStyle(color: Colors.white54)),
                 const Spacer(),
                 Text(
-                  "Rs. ${jobData['Salary']}",
+                  jobData['Salary'] != null && jobData['Salary'].toString().isNotEmpty
+                      ? "Rs. ${jobData['Salary']}"
+                      : "Salary Not Specified",
                   style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
                 ),
               ],

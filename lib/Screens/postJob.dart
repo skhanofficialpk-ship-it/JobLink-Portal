@@ -19,6 +19,17 @@ class _PostJobScreenState extends State<PostJobScreen> {
 
   int selectedDuration = 7;
 
+  @override
+  void dispose() {
+    titleController.dispose();
+    companyController.dispose();
+    salaryController.dispose();
+    locationController.dispose();
+    descriptionController.dispose();
+    contactController.dispose();
+    super.dispose();
+  }
+
   final List<String> allCities = [
     "Abbottabad", "Ahmedpur East", "Akhunabad", "Alipur", "Alipur Chatha", "Ali Khan Abad", "Arifwala", "Attock", "Awaran", "Badin",
     "Bahawalnagar", "Bahawalpur", "Bakhsh Town (Karachi East)", "Bakrani", "Baldia Town (Karachi West)", "Bannu", "Barikot", "Basirpur", "Bastorian", "Bela",
@@ -154,17 +165,22 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(color: Colors.cyanAccent.withOpacity(0.3)),
                         ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredCities.length,
-                          itemBuilder: (context, index) => ListTile(
-                            title: Text(filteredCities[index], style: const TextStyle(color: Colors.white)),
-                            onTap: () {
-                              setState(() {
-                                locationController.text = filteredCities[index];
-                                filteredCities.clear();
-                              });
-                            },
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: filteredCities.length,
+                            itemBuilder: (context, index) => ListTile(
+                              title: Text(filteredCities[index], style: const TextStyle(color: Colors.white)),
+                              onTap: () {
+                                setState(() {
+                                  locationController.text = filteredCities[index];
+                                  filteredCities.clear();
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),

@@ -35,6 +35,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     };
   }
 
+  @override
+  void dispose() {
+    for (var controller in controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   Future<void> _updatePost() async {
     if (!_formKey.currentState!.validate()) return;
 

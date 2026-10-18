@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class HelpCenterScreen extends StatefulWidget {
@@ -11,6 +10,12 @@ class HelpCenterScreen extends StatefulWidget {
 class _HelpCenterScreenState extends State<HelpCenterScreen> {
   final TextEditingController searchController = TextEditingController();
   String query = "";
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +90,13 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                           "Password Reset Guide",
                           "If you didn't receive the reset email, please check your Spam or Junk folder. Sometimes automated emails are filtered by providers. Try requesting again with a valid email.",
                           Icons.lock_reset_outlined,
+                        ),
+
+                      if (query.isEmpty || "account delete".contains(query))
+                        _buildHelpCard(
+                          "Account Deletion",
+                          "To request account deletion, please contact our support team via email. Your account will be deleted automatically within 24 hours of your request.",
+                          Icons.delete_outline,
                         ),
 
                       if (query.isEmpty || "contact".contains(query))

@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -48,6 +45,15 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDM8lgblF_7Pzw-c6iNQJ1yeudtqypIkqc',
+    appId: '1:112012422178:web:55303fdb1069dc7f556e7b',
+    messagingSenderId: '112012422178',
+    projectId: 'joblink-portal-1e800',
+    authDomain: 'joblink-portal-1e800.firebaseapp.com',
+    storageBucket: 'joblink-portal-1e800.firebasestorage.app',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDM8lgblF_7Pzw-c6iNQJ1yeudtqypIkqc',

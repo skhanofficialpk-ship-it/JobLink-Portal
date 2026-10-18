@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:joblink_portal/Screens/employeeDetails.dart';
@@ -13,10 +12,16 @@ class SearchEmployeeScreen extends StatefulWidget {
 class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
   final TextEditingController searchController = TextEditingController();
   String searchQuery = "";
+  String _sortBy = 'newest';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    String _sortBy = 'newest';
     return Scaffold(
       body: Container(
         // Purple & Navy Dark Gradient
@@ -43,12 +48,21 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
                   ),
                   child: TextField(
                     controller: searchController,
-                    onChanged: (value) => setState(() => searchQuery = value.toLowerCase()),
+                    onChanged: (value) => setState(() => searchQuery = value.toLowerCase().trim()),
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: "Search name, skill or location...",
                       hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
                       prefixIcon: const Icon(Icons.search, color: Colors.cyanAccent),
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.white54, size: 20),
+                              onPressed: () {
+                                searchController.clear();
+                                setState(() => searchQuery = "");
+                              },
+                            )
+                          : null,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(vertical: 15),
                     ),
@@ -65,6 +79,14 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator(color: Colors.cyanAccent));
                     }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Error loading profiles: ${snapshot.error}",
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return _buildEmptyState("No profiles found");
                     }
@@ -72,21 +94,43 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
                     var filteredDocs = snapshot.data!.docs.where((doc) {
                       var data = doc.data() as Map<String, dynamic>;
 
-                      // Expiry Logic
-                      bool isExpired = false;
+                      // Expiry Logic & Auto-Deletion
                       if (data.containsKey('expiresAt') && data['expiresAt'] != null) {
                         DateTime expiryDate = (data['expiresAt'] as Timestamp).toDate();
-                        if (expiryDate.isBefore(DateTime.now())) isExpired = true;
+                        if (expiryDate.isBefore(DateTime.now())) {
+                          doc.reference.delete().catchError((e) => debugPrint("Error deleting expired profile: $e"));
+                          return false;
+                        }
                       }
 
                       // Search Logic
                       String name = (data['Full Name'] ?? "").toString().toLowerCase();
                       String skill = (data['Skill / Profession'] ?? "").toString().toLowerCase();
                       String location = (data['Location'] ?? "").toString().toLowerCase();
-                      bool matchesSearch = name.contains(searchQuery) || skill.contains(searchQuery) || location.contains(searchQuery);
+                      bool matchesSearch = searchQuery.isEmpty ||
+                          name.contains(searchQuery) ||
+                          skill.contains(searchQuery) ||
+                          location.contains(searchQuery);
 
-                      return !isExpired && matchesSearch;
+                      return matchesSearch;
                     }).toList();
+
+                    // Safe Sorting Logic
+                    if (_sortBy == 'newest') {
+                      filteredDocs.sort((a, b) {
+                        final dataA = a.data() as Map<String, dynamic>;
+                        final dataB = b.data() as Map<String, dynamic>;
+
+                        Timestamp t1 = dataA.containsKey('createdAt') && dataA['createdAt'] != null
+                            ? dataA['createdAt']
+                            : Timestamp.now();
+                        Timestamp t2 = dataB.containsKey('createdAt') && dataB['createdAt'] != null
+                            ? dataB['createdAt']
+                            : Timestamp.now();
+
+                        return t2.compareTo(t1);
+                      });
+                    }
 
                     if (filteredDocs.isEmpty) {
                       return _buildEmptyState("No active profiles match your search");
@@ -150,6 +194,9 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
       }
     }
 
+    String rawName = (data['Full Name'] ?? "").toString().trim();
+    String initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : "U";
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -166,7 +213,7 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
               CircleAvatar(
                 backgroundColor: Colors.cyanAccent.withOpacity(0.1),
                 child: Text(
-                  (data['Full Name'] ?? "U")[0].toUpperCase(),
+                  initial,
                   style: const TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -176,7 +223,7 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data['Full Name'] ?? 'Unnamed',
+                      rawName.isNotEmpty ? rawName : 'Unnamed',
                       style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Text(
@@ -193,9 +240,10 @@ class _SearchEmployeeScreenState extends State<SearchEmployeeScreen> {
             child: Divider(color: Colors.white10, height: 1),
           ),
           Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _iconInfo(Icons.work_outline, data['Experience'] ?? 'N/A'),
+              const SizedBox(height: 6),
               _iconInfo(Icons.location_on_outlined, data['Location'] ?? 'N/A'),
             ],
           ),

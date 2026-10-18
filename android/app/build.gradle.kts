@@ -6,8 +6,7 @@ plugins {
     // START: FlutterFire Configuration
     id("com.google.gms.google-services")
     // END: FlutterFire Configuration
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // The Flutter Gradle Plugin must be applied after the Android and Google Services plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -26,10 +25,27 @@ android {
     // Signing configuration 'android' block ke andar honi chahiye
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
-            storePassword = keystoreProperties["storePassword"] as String?
+            val alias = keystoreProperties["keyAlias"] as String?
+            val keyPass = keystoreProperties["keyPassword"] as String?
+            val storePass = keystoreProperties["storePassword"] as String?
+            val rawPath = keystoreProperties["storeFile"] as String?
+
+            if (alias != null && keyPass != null && storePass != null && rawPath != null) {
+                val f1 = file(rawPath)
+                val f2 = rootProject.file(rawPath)
+                val targetFile = if (f1.exists()) f1 else if (f2.exists()) f2 else null
+
+                if (targetFile != null && targetFile.exists()) {
+                    keyAlias = alias
+                    keyPassword = keyPass
+                    storePassword = storePass
+                    storeFile = targetFile
+                } else {
+                    initWith(getByName("debug"))
+                }
+            } else {
+                initWith(getByName("debug"))
+            }
         }
     }
 

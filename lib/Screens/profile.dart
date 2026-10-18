@@ -29,6 +29,13 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  @override
+  void dispose() {
+    aboutController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickAndUploadImage() async {
     try {
       final XFile? image =
@@ -340,7 +347,17 @@ class _UserProfileScreenState extends State<UserProfileScreen>
               child: CircularProgressIndicator(color: Colors.cyanAccent));
         }
 
-        var docs = snapshot.data!.docs;
+        var docs = snapshot.data!.docs.where((doc) {
+          var data = doc.data() as Map<String, dynamic>;
+          if (data.containsKey('expiresAt') && data['expiresAt'] != null) {
+            DateTime expiryDate = (data['expiresAt'] as Timestamp).toDate();
+            if (expiryDate.isBefore(DateTime.now())) {
+              doc.reference.delete().catchError((e) => debugPrint("Error deleting expired post: $e"));
+              return false;
+            }
+          }
+          return true;
+        }).toList();
 
         if (docs.isEmpty) {
           return _EmptyState(message: "No posts found", icon: icon);
@@ -468,23 +485,28 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-              color: Colors.cyanAccent.withOpacity(0.1), shape: BoxShape.circle),
-          child: Icon(icon, color: Colors.cyanAccent),
-        ),
-        title: Text(title,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle: subtitleWidget,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(icon: const Icon(Icons.edit_note, color: Colors.cyanAccent), onPressed: onEdit),
-            IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent), onPressed: onDelete),
-          ],
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(15),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          onTap: onTap,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color: Colors.cyanAccent.withOpacity(0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: Colors.cyanAccent),
+          ),
+          title: Text(title,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          subtitle: subtitleWidget,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(icon: const Icon(Icons.edit_note, color: Colors.cyanAccent), onPressed: onEdit),
+              IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent), onPressed: onDelete),
+            ],
+          ),
         ),
       ),
     );
